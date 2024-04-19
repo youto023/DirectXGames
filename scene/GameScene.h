@@ -13,12 +13,24 @@
 /// </summary>
 class GameScene {
 
+	//IuGuiで値を入力する変数
+	float inputFloat3[3] = {0, 0, 0};
+
 public: // メンバ関数
 	/// <summary>
 	/// コンストクラタ
 	/// </summary>
 	GameScene();
-
+	
+	//テクスチャ
+	Sprite* sprite_ = nullptr;
+	
+	//３Dモデル
+	Model* model_ = nullptr;
+	//ワールドトランスフォーム
+	WorldTransform worldTransform_;
+	//ビュープロテクション
+	ViewProjection viewProjection_;
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
@@ -28,7 +40,9 @@ public: // メンバ関数
 	/// 初期化
 	/// </summary>
 	void Initialize();
-
+	//テクスチャハンドル
+	uint32_t textureHandle_ = 0;
+	
 	/// <summary>
 	/// 毎フレーム処理
 	/// </summary>
@@ -38,6 +52,7 @@ public: // メンバ関数
 	/// 描画
 	/// </summary>
 	void Draw();
+	
 
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;

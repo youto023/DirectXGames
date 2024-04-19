@@ -1,19 +1,54 @@
 #include "GameScene.h"
 #include "TextureManager.h"
 #include <cassert>
+#include"ImGuiManager.h"
+#include"PrimitiveDrawer.h"
 
+//コンストラクタ
 GameScene::GameScene() {}
-
-GameScene::~GameScene() {}
+//デスクトラクタ
+GameScene::~GameScene() { 
+	delete sprite_;
+	delete model_;
+}
 
 void GameScene::Initialize() {
-
+	//ワールドトランスフォームの初期化
+	worldTransform_ .Initialize();
+	// ビュープロテクションの初期化
+	viewProjection_.Initialize();
+	//ファイル名を指定してテクスチャを読み込む
+	textureHandle_ = TextureManager::Load("koumori.png");
+	//スプライト生成
+	sprite_ = Sprite ::Create(textureHandle_, {100, 50});
+	//3Dモデル生成
+	model_ = Model::Create();
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
+	
+	PrimitiveDrawer::GetInstance()->SetViewProjection(&viewProjection_);
+	
 }
 
-void GameScene::Update() {}
+void GameScene::Update() { 
+	//スプライトの今の座標取得
+	Vector2 position = sprite_->GetPosition();
+	position.x += 2.0f;
+	position.y += 1.0f;
+	//移動した座標をスプライトに反映
+	sprite_->SetPosition(position);
+	
+	//デバックテキストの表示
+	ImGui::Begin("Debug1");
+	ImGui::InputFloat3("InputFloat3", inputFloat3);
+	ImGui::Text("Kamata Tarou %d %d %d", 2050, 12, 31);
+	ImGui::SliderFloat3("SliderFloat3", inputFloat3, 0.0f, 1.0f);
+	ImGui::End();
+	
+	//デモウィンドウの表示を有効化
+	ImGui::ShowDemoWindow();
+}
 
 void GameScene::Draw() {
 
@@ -37,7 +72,9 @@ void GameScene::Draw() {
 #pragma region 3Dオブジェクト描画
 	// 3Dオブジェクト描画前処理
 	Model::PreDraw(commandList);
-
+	// ３Dモデル描画
+	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
+	PrimitiveDrawer::GetInstance()->DrawLine3d({0, 0, 0}, {0, 10, 0}, {1.0f, 0.0f, 0.0f, 1.0f});
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
@@ -49,6 +86,7 @@ void GameScene::Draw() {
 #pragma region 前景スプライト描画
 	// 前景スプライト描画前処理
 	Sprite::PreDraw(commandList);
+	sprite_->Draw();
 
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
