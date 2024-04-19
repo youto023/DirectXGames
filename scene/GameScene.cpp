@@ -10,6 +10,8 @@ GameScene::GameScene() {}
 GameScene::~GameScene() { 
 	delete sprite_;
 	delete model_;
+	delete debugCamera_;
+
 }
 
 void GameScene::Initialize() {
@@ -28,7 +30,8 @@ void GameScene::Initialize() {
 	audio_ = Audio::GetInstance();
 	
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&viewProjection_);
-	
+	//デバックカメラの生成
+	debugCamera_ = new DebugCamera(200, 100);
 }
 
 void GameScene::Update() { 
@@ -48,6 +51,10 @@ void GameScene::Update() {
 	
 	//デモウィンドウの表示を有効化
 	ImGui::ShowDemoWindow();
+	
+	//デバックカメラの最新
+	debugCamera_->Update();
+
 }
 
 void GameScene::Draw() {
@@ -74,7 +81,8 @@ void GameScene::Draw() {
 	Model::PreDraw(commandList);
 	// ３Dモデル描画
 	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
-	PrimitiveDrawer::GetInstance()->DrawLine3d({0, 0, 0}, {0, 10, 0}, {1.0f, 0.0f, 0.0f, 1.0f});
+	//PrimitiveDrawer::GetInstance()->DrawLine3d({0, 0, 0}, {0, 10, 0}, {1.0f, 0.0f, 0.0f, 1.0f});
+	model_->Draw(worldTransform_, debugCamera_->GetViewProjection(), textureHandle_);
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
@@ -87,7 +95,7 @@ void GameScene::Draw() {
 	// 前景スプライト描画前処理
 	Sprite::PreDraw(commandList);
 	sprite_->Draw();
-
+	
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>

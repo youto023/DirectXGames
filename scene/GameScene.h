@@ -7,6 +7,7 @@
 #include "Sprite.h"
 #include "ViewProjection.h"
 #include "WorldTransform.h"
+#include <DebugCamera.h>
 
 /// <summary>
 /// ゲームシーン
@@ -16,17 +17,23 @@ class GameScene {
 	//IuGuiで値を入力する変数
 	float inputFloat3[3] = {0, 0, 0};
 
+	
+	
+
 public: // メンバ関数
 	/// <summary>
 	/// コンストクラタ
 	/// </summary>
 	GameScene();
-	
+
 	//テクスチャ
 	Sprite* sprite_ = nullptr;
 	
 	//３Dモデル
 	Model* model_ = nullptr;
+
+	   // デバックカメラ
+		DebugCamera* debugCamera_ = nullptr;
 	//ワールドトランスフォーム
 	WorldTransform worldTransform_;
 	//ビュープロテクション
