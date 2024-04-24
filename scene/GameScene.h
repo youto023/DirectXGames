@@ -1,5 +1,5 @@
 #pragma once
-
+#include"Player.h"
 #include "Audio.h"
 #include "DirectXCommon.h"
 #include "Input.h"
@@ -31,7 +31,8 @@ public: // メンバ関数
 	
 	//３Dモデル
 	Model* model_ = nullptr;
-
+	//自キャラ
+	Player* player_ = nullptr;
 	   // デバックカメラ
 		DebugCamera* debugCamera_ = nullptr;
 	//ワールドトランスフォーム
@@ -47,8 +48,7 @@ public: // メンバ関数
 	/// 初期化
 	/// </summary>
 	void Initialize();
-	//テクスチャハンドル
-	uint32_t textureHandle_ = 0;
+	
 	
 	/// <summary>
 	/// 毎フレーム処理
@@ -65,6 +65,8 @@ private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
+	// テクスチャハンドル 
+	uint32_t textureHandle_ = 0;
 
 	/// <summary>
 	/// ゲームシーン用
