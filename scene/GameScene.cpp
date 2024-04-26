@@ -75,11 +75,10 @@ void GameScene::Draw() {
 	Model::PreDraw(commandList);
 	// ３Dモデル描画
 	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
-	PrimitiveDrawer::GetInstance()->DrawLine3d({0, 0, 0}, {0, 10, 0}, {1.0f, 0.0f, 0.0f, 1.0f});
+	//PrimitiveDrawer::GetInstance()->DrawLine3d({0, 0, 0}, {0, 10, 0}, {1.0f, 0.0f, 0.0f, 1.0f});
 	model_->Draw(worldTransform_, debugCamera_->GetViewProjection(), textureHandle_);
 
-	// 自キャラの
-	player_->Update();
+
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
