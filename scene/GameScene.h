@@ -8,8 +8,8 @@
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 #include <DebugCamera.h>
-
-/// <summary>
+#include<vector>
+    /// <summary>
 /// ゲームシーン
 /// </summary>
 class GameScene {
@@ -26,19 +26,27 @@ public: // メンバ関数
 	/// </summary>
 	GameScene();
 
-	//テクスチャ
-	Sprite* sprite_ = nullptr;
+	
 	
 	//３Dモデル
 	Model* model_ = nullptr;
+	Model* modelBlock_ = nullptr;
+
 	//自キャラ
 	Player* player_ = nullptr;
 	   // デバックカメラ
 		DebugCamera* debugCamera_ = nullptr;
+		//デバックカメラ有効
+	    bool isDebugCameraActive_ = false;
+
+
+
 	//ワールドトランスフォーム
 	WorldTransform worldTransform_;
 	//ビュープロテクション
 	ViewProjection viewProjection_;
+
+	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
@@ -65,8 +73,7 @@ private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
-	// テクスチャハンドル 
-	uint32_t textureHandle_ = 0;
+	
 
 	/// <summary>
 	/// ゲームシーン用
