@@ -28,25 +28,11 @@ public: // メンバ関数
 
 	
 	
-	//３Dモデル
-	Model* model_ = nullptr;
-	Model* modelBlock_ = nullptr;
-
-	//自キャラ
-	Player* player_ = nullptr;
-	   // デバックカメラ
-		DebugCamera* debugCamera_ = nullptr;
-		//デバックカメラ有効
-	    bool isDebugCameraActive_ = false;
+	
 
 
 
-	//ワールドトランスフォーム
-	WorldTransform worldTransform_;
-	//ビュープロテクション
-	ViewProjection viewProjection_;
-
-	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
+	
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
@@ -73,8 +59,24 @@ private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
-	
+	// ワールドトランスフォーム
+	WorldTransform worldTransform_;
+	// ビュープロテクション
+	ViewProjection viewProjection_;
 
+	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
+	// ３Dモデル
+	Model* model_ = nullptr;
+	Model* modelBlock_ = nullptr;
+	//テクスチャハンドル
+	uint32_t textureHandle_ = 0;
+
+	// 自キャラ
+	Player* player_ = nullptr;
+	// デバックカメラ
+	DebugCamera* debugCamera_ = nullptr;
+	// デバックカメラ有効
+	bool isDebugCameraActive_ = false;
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>

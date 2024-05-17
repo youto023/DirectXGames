@@ -29,7 +29,7 @@ void GameScene::Initialize() {
 	// ビュープロテクションの初期化
 	viewProjection_.Initialize();
 	
-	
+	textureHandle_ = TextureManager::Load("koumori.png");
 	//自キャラ生成
 	player_ = new Player();
 	//自キャラの更新
@@ -87,8 +87,8 @@ void GameScene::Update() {
 	//デバックカメラの最新
 	debugCamera_->Update();
 
-	#ifdef DEBUG
-	if (input_->TriggerKey(DIK_O)) {
+	#ifdef _DEBUG
+	if (input_->TriggerKey(DIK_0)) {
 		isDebugCameraActive_ = !isDebugCameraActive_;
 	}
 #endif 
@@ -159,6 +159,7 @@ void GameScene::Draw() {
 #pragma region 3Dオブジェクト描画
 	// 3Dオブジェクト描画前処理
 	Model::PreDraw(commandList);
+
 	
 	//PrimitiveDrawer::GetInstance()->DrawLine3d({0, 0, 0}, {0, 10, 0}, {1.0f, 0.0f, 0.0f, 1.0f});
 	
@@ -171,6 +172,14 @@ void GameScene::Draw() {
 			modelBlock_->Draw(*worldTransformBlock, viewProjection_);
 		}
 	}
+
+	// ３Dモデル描画
+	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
+	//PrimitiveDrawer::GetInstance()->DrawLine3d({0, 0, 0}, {0, 10, 0}, {1.0f, 0.0f, 0.0f, 1.0f});
+	model_->Draw(worldTransform_, debugCamera_->GetViewProjection(), textureHandle_);
+
+
+
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
