@@ -10,7 +10,7 @@ public:
 
 
 
-	void Initialize();
+	void Initialize(Model* model, uint32_t textureHandle,ViewProjection*viewpPojection);
 
 
 
@@ -31,7 +31,7 @@ public:
 	    // テクスチャハンドル
 	    uint32_t textureHandle_ = 0u;
 
-		void Initialize(Model* model, uint32_t textureHandle);
+		ViewProjection* viewProjection_;
 
 
 };

@@ -1,16 +1,19 @@
 #include "Player.h"
 #include <cassert>
 
-void Player::Initialize(Model* model, uint32_t textureHandle) {
+void Player::Initialize(Model* model, uint32_t textureHandle, ViewProjection* viewProjection) {
 	//NULLポインタチェック
-	assert(model_);
+	assert(model);
 	model_ = model;
 	textureHandle_ = textureHandle;
 	worldTransform_.Initialize();
+	viewProjection_ = viewProjection;
 }
 
-void Player::Initialize() {}
 
-void Player::Update() {}
 
-void Player::Draw() {}
+void Player::Update() { worldTransform_.TransferMatrix();
+
+}
+
+void Player::Draw() { model_->Draw(worldTransform_, *viewProjection_, textureHandle_); }

@@ -20,6 +20,7 @@ GameScene::~GameScene() {
 		delete worldTransformBlock;
 	}
 }
+	delete modelSkydome_;
 	worldTransformBlocks_.clear();
 }
 
@@ -30,13 +31,22 @@ void GameScene::Initialize() {
 	viewProjection_.Initialize();
 	
 	textureHandle_ = TextureManager::Load("koumori.png");
+	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
+	modelBlock_ = Model::CreateFromOBJ("cube");
 	//自キャラ生成
 	player_ = new Player();
-	//自キャラの更新
-	player_->Initialize();
+	// スカイドーム生成
+	skydome_ = new Skydome();
 	//3Dモデル生成
 	model_ = Model::Create();
-	modelBlock_ = Model::CreateFromOBJ("cube");
+	// 自キャラの更新
+	player_->Initialize(model_, textureHandle_,&viewProjection_);
+	
+	// スカイドームの更新
+	skydome_->Initialize(modelSkydome_, &viewProjection_);
+	
+	
+
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
@@ -111,6 +121,9 @@ void GameScene::Update() {
 	player_->Update();
 
 
+	skydome_->Update();
+
+
 	//ブロックの最新
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -180,7 +193,7 @@ void GameScene::Draw() {
 
 
 
-
+	skydome_->Draw();
 
 
 	/// <summary>

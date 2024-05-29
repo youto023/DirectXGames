@@ -9,6 +9,7 @@
 #include "WorldTransform.h"
 #include <DebugCamera.h>
 #include<vector>
+#include<Skydome.h>
     /// <summary>
 /// ゲームシーン
 /// </summary>
@@ -68,6 +69,8 @@ private: // メンバ変数
 	// ３Dモデル
 	Model* model_ = nullptr;
 	Model* modelBlock_ = nullptr;
+	Model* modelSkydome_ = nullptr;
+	
 	//テクスチャハンドル
 	uint32_t textureHandle_ = 0;
 
@@ -77,6 +80,9 @@ private: // メンバ変数
 	DebugCamera* debugCamera_ = nullptr;
 	// デバックカメラ有効
 	bool isDebugCameraActive_ = false;
+	//スカイドーム
+
+	Skydome*skydome_ = nullptr;
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
