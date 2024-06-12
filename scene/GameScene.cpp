@@ -10,6 +10,7 @@
 
 //コンストラクタ
 GameScene::GameScene() {}
+
 //デスクトラクタ
 GameScene::~GameScene() {
 	delete player_;
@@ -22,8 +23,31 @@ GameScene::~GameScene() {
 }
 	delete modelSkydome_;
 	worldTransformBlocks_.clear();
+	// マップチップフィールドの解放
+	delete mapChipField_;
 }
+void GameScene::GenerateBlocks() {                                               
+	// 要素数
+	const uint32_t kNumBlockVirtical = mapChipField_->GetNumBlockVirtical();     // 縦
+	const uint32_t kNumBlockHorizontal = mapChipField_->GetNumBlockHorizontal(); // 横
+	// 要素数を変更する
 
+	worldTransformBlocks_.resize(kNumBlockVirtical);
+	// キューブの生成
+	for (uint32_t i = 0; i < kNumBlockVirtical; ++i) {
+		worldTransformBlocks_[i].resize(kNumBlockHorizontal);
+	}
+	for (uint32_t i = 0; i < kNumBlockVirtical; ++i) {
+		for (uint32_t j = 0; j < kNumBlockHorizontal; ++j) {
+			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kBlock) {
+				WorldTransform* worldTransform = new WorldTransform();
+				worldTransform->Initialize();
+				worldTransformBlocks_[i][j] = worldTransform;
+				worldTransformBlocks_[i][j]->translation_ = mapChipField_->GetMapChipPositionByIndex(j, i);
+			}
+		}
+	}
+}
 void GameScene::Initialize() {
 	//ワールドトランスフォームの初期化
 	worldTransform_ .Initialize();
@@ -32,21 +56,24 @@ void GameScene::Initialize() {
 	
 	textureHandle_ = TextureManager::Load("koumori.png");
 	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
-	modelBlock_ = Model::CreateFromOBJ("cube");
+	modelBlock_ = Model::CreateFromOBJ("block");
 	//自キャラ生成
 	player_ = new Player();
 	// スカイドーム生成
 	skydome_ = new Skydome();
 	//3Dモデル生成
 	model_ = Model::Create();
+	//マップチップ生成
+	mapChipField_ = new MapChipField;
 	// 自キャラの更新
 	player_->Initialize(model_, textureHandle_,&viewProjection_);
 	
 	// スカイドームの更新
 	skydome_->Initialize(modelSkydome_, &viewProjection_);
 	
-	
-
+	// マップチップの更新
+	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
+	GenerateBlocks();
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
@@ -55,35 +82,11 @@ void GameScene::Initialize() {
 	//デバックカメラの生成
 	debugCamera_ = new DebugCamera(200, 100);
 
-	//要素数
-	const uint32_t kNumBlockVirtical = 10;   // 縦
-	const uint32_t kNumBlockHorizontal = 20;//横
 	
-	//ブロック一個分の横幅
-	const float kBlockWindth = 2.0f;
-	const float kBlockHeight = 2.0f;
-	//要素数を変更する
 	
-	worldTransformBlocks_.resize(kNumBlockVirtical);
-	//キューブの生成
-	for (uint32_t i = 0; i < kNumBlockVirtical; ++i) {
-		worldTransformBlocks_[i].resize(kNumBlockHorizontal);
-	}
+	
 
-	for (uint32_t i = 0; i < kNumBlockVirtical; ++i) {
-		for (uint32_t j = 0; j < kNumBlockHorizontal; ++j) {
-			if ((i + j)% 2 == 0) {
-				continue;
-			}
-				
-			worldTransformBlocks_[i][j] = new WorldTransform();
-			worldTransformBlocks_[i][j]->Initialize();
-			worldTransformBlocks_[i][j]->translation_.x = kBlockWindth * j;
-			worldTransformBlocks_[i][j]->translation_.y = kBlockHeight * i;
-		}
-		
-			
-	}
+	
 }
 
 void GameScene::Update() { 
