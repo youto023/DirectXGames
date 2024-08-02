@@ -3,6 +3,7 @@
 #include "TextureManager.h"
 #include <cassert>
 
+
 // コンストラクタ
 GameScene::GameScene() {}
 
@@ -18,6 +19,9 @@ GameScene::~GameScene() {
 	delete modelSkydome_;
 
 	delete modelBlock_;
+	
+	delete target_;
+	//delete cameraController_;
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -108,6 +112,17 @@ void GameScene::Initialize() {
 
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);
+	//カメラコントローラの初期化
+	
+	
+	target_ = new CameraController();
+	target_->Initialize();
+	target_->SetTarget(player_);
+	
+	target_->Reset();
+	CameraController ::Rect cameraArea = {12.0f, 100 - 12.0f, 6.0f, 6.0f};
+	target_->SetMovableArea(cameraArea);			
+
 }
 
 void GameScene::Update() {
@@ -146,6 +161,7 @@ void GameScene::Update() {
 	// デバッグカメラの更新
 	debugCamera_->Update();
 
+	target_->Update();
 #ifdef _DEBUG
 
 	if (input_->TriggerKey(DIK_SPACE)) {
@@ -162,7 +178,10 @@ void GameScene::Update() {
 		viewProjection_.TransferMatrix();
 	} else {
 		// ビュープロジェクション行列の更新と転送
-		viewProjection_.UpdateMatrix();
+		viewProjection_.matView = target_->GetViewProjection().matView;
+		viewProjection_.matProjection = target_->GetViewProjection().matProjection;
+
+		viewProjection_.TransferMatrix();
 	}
 }
 
@@ -210,6 +229,8 @@ void GameScene::Draw() {
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
+
+	
 #pragma endregion
 
 #pragma region 前景スプライト描画

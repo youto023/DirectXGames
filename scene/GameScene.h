@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Audio.h"
-//#include "CameraController.h"
+#include "CameraController.h"
 #include "DebugCamera.h"
 #include "DirectXCommon.h"
 #include "Input.h"
@@ -92,4 +92,6 @@ private: // メンバ変数
 
 	// カメラビュープロジェクション
 	ViewProjection* CameraViewProjection_;
+
+CameraController* target_ = nullptr;
 };

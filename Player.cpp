@@ -1,6 +1,5 @@
 #define NOMINMAX
 #include "Player.h"
-#include "MathUtilityFortext.h"
 #include <Input.h>
 #include <algorithm>
 #include <cassert>
