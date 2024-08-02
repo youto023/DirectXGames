@@ -1,7 +1,7 @@
 #include "CameraController.h"
 #include "Player.h"
 void CameraController::Initialize() {
-
+	//ビュープロジェクションの初期化
 	viewProjection_.Initialize();
 		
 		
@@ -14,11 +14,24 @@ void CameraController::Update() {
 	const WorldTransform& targetWorldTransform = target_->GetWorldTransform();
 
 	const Vector3& targetVelocity = target_->GetVelocity();
+	// 追従対象とオフセットからカメラの目標座標を計算
+	//cameraTatget_ = targetWorldTransform.translation_ + targetOffset_;
+
 	// 追従対象とオフセットと追従対象の速度からカメラの目標座標の計算
 	cameraTatget_ = targetWorldTransform.translation_ + targetOffset_ + targetVelocity * kVelocityBias;
 
+		// 追従対象とオフセットからカメラの座標を計算
+	//viewProjection_.translation_ = targetWorldTransform.translation_ + targetOffset_;
+
 	//座標補間によりゆったり追従
 	viewProjection_.translation_ = Lerp(viewProjection_.translation_, cameraTatget_, kInterpolationRate);
+
+	//追従対象が画面外に出ないように補整
+	viewProjection_.translation_.x = max(viewProjection_.translation_.x ,targetWorldTransform.translation_.x+ targetMargin.left);
+	viewProjection_.translation_.x = min(viewProjection_.translation_.x ,targetWorldTransform.translation_.x+ targetMargin.right);
+	viewProjection_.translation_.y = max(viewProjection_.translation_.y, targetWorldTransform.translation_.y + targetMargin.bottom);
+	viewProjection_.translation_.y = min(viewProjection_.translation_.y, targetWorldTransform.translation_.y + targetMargin.top);
+
 
 	//移動範囲制限
 	viewProjection_.translation_.x = max(viewProjection_.translation_.x, movableArea_.left);

@@ -14,3 +14,8 @@ Vector3 Lerp(const Vector3& v1, const Vector3& v2, float t);
 //2項演算子オーバーロード
 //Vector３の足し算
 const Vector3 operator+(const Vector3& v1, const Vector3& v2);
+// Vector３の掛け算
+const Vector3 operator*=( Vector3& v, float s);
+// 2項演算子オーバーロード
+// Vector３の掛け算
+const Vector3 operator*(const Vector3& v, float s);

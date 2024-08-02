@@ -36,4 +36,16 @@ Vector3 Lerp(const Vector3& v1, const Vector3& v2, float t) { return Vector3(Ler
 // Vector３の足し算
 const Vector3 operator+(const Vector3& v1, const Vector3& v2) { 
 	Vector3 temp(v1);
-	return temp += v2; }
+	return temp += v2;
+}
+
+const Vector3 operator*=(Vector3& v, float s) {
+	v.x *= s;
+	v.y *= s;
+	v.z *= s;
+	
+	return v; }
+
+const Vector3 operator*(const Vector3& v, float s) { 
+	 Vector3 temp(v);
+	return temp *=s; }
