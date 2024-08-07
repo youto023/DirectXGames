@@ -1,47 +1,84 @@
 #pragma once
-#include <cstdint>
+
+#include "Audio.h"
+#include "DebugCamera.h"
+#include "DirectXCommon.h"
+#include "Input.h"
+#include "Model.h"
+#include "Player.h"
+#include "Skydome.h"
+#include "Sprite.h"
+#include "ViewProjection.h"
+#include "WorldTransform.h"
+#include <map>
 #include <vector>
-#include <string>
-#include <cassert>
-#include<Vector3.h>
 
 enum class MapChipType {
 	kBlank, // 空白
 	kBlock, // ブロック
-
 };
 
-struct MapChipData {
-	std::vector<std::vector<MapChipType>> data;
+struct MapChipDate {
+	std::vector<std::vector<MapChipType>> date;
 };
 
+/// <summary>
+/// マップチップフィールド
+/// </summary>
 class MapChipField {
 
-
-
-
-
 public:
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	void Initialize();
 
-void ResetMapChipData();
+	///< summary>
+	/// 更新
+	///  </summary>
+	void Update();
 
-void LoadMapChipCsv(const std::string& filepath);
+	///< summary>
+	/// 描画
+	///  </summary>
+	void Draw();
 
-MapChipType GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex);
+	void ResetMapChipDate();
 
-Vector3 GetMapChipPositionByIndex(uint32_t xIndex, uint32_t yIndex);
+	void LoadMapChipCsv(const std::string& filePath);
 
-static inline const uint32_t GetNumBlockVirtical()  { return kNumBlockVirtical; }
-static inline const uint32_t GetNumBlockHorizontal() { return kNumBlockHorizontal; }
+	MapChipType GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex);
+
+	Vector3 GetMapChipPositionByIndex(uint32_t xIndex, uint32_t yIndex);
+
+	uint32_t GetNumBlockVirtical() const { return kNumBlockVirtical; };
+	uint32_t GetNumBlockHorizontal() const { return kNumBlockHorizontal; };
+
+	struct IndexSet {
+		uint32_t xIndex;
+		uint32_t yIndex;
+	};
+
+	IndexSet GetMapChipIndexSetByPosition(const Vector3& position);
+
+	// 範囲矩形
+	struct Rect {
+		float left;   // 左端
+		float right;  // 右端
+		float bottom; // 下端
+		float top;    // 上端
+	};
+
+	Rect GetRectByIndex(uint32_t xIndex, uint32_t yIndex);
 
 private:
-// 1ブロックのサイズ
-static inline const float kBlockWindth = 1.0f;
-static inline const float kBlockHeight = 1.0f;
-// ブロックの個数
-static inline const uint32_t kNumBlockVirtical = 20;
-static inline const uint32_t kNumBlockHorizontal = 100;
+	// 一ブロックのサイズ
+	static inline const float kBlockWidth = 1.0f;
+	static inline const float kBlockHeight = 1.0f;
 
-MapChipData mapChipData_;
+	// ブロックの個数
+	static inline const uint32_t kNumBlockVirtical = 20;
+	static inline const uint32_t kNumBlockHorizontal = 100;
+
+	MapChipDate mapChipDate_;
 };
-

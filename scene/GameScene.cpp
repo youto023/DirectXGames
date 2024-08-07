@@ -1,8 +1,8 @@
 #include "GameScene.h"
+#include "CameraController.h"
 #include "MathUtilityForText.h"
 #include "TextureManager.h"
 #include <cassert>
-
 
 // コンストラクタ
 GameScene::GameScene() {}
@@ -19,9 +19,6 @@ GameScene::~GameScene() {
 	delete modelSkydome_;
 
 	delete modelBlock_;
-	
-	delete target_;
-	//delete cameraController_;
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -34,6 +31,12 @@ GameScene::~GameScene() {
 
 	// マップチップフィールドの開放
 	delete mapChipFiled_;
+
+	// カメラ初期化
+	delete CameraController_;
+
+	// 敵
+	delete enemy_;
 }
 
 void GameScene::Initialize() {
@@ -47,6 +50,10 @@ void GameScene::Initialize() {
 	viewProjection_.farZ = 600; // これを５００とかにすると後ろの方ででっかい弾が出る。
 
 	mapChipFiled_ = new MapChipField;
+
+	// マップチップフィールドの初期化
+	mapChipFiled_->Initialize();
+
 	mapChipFiled_->LoadMapChipCsv("Resources/blocks.csv");
 
 	// 表示ブロックの生成
@@ -61,6 +68,9 @@ void GameScene::Initialize() {
 	// ３Dモデルの生成
 	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
 
+	// マップチップフィールドの生成
+	// mapChipFiled_ = new MapChipField();
+
 	// プレイヤーモデルの生成
 	modelPlayer_ = Model::CreateFromOBJ("player", true);
 
@@ -68,10 +78,12 @@ void GameScene::Initialize() {
 	player_ = new Player();
 
 	// 座標をマップチップ番号で指定
-	Vector3 playerPosition = mapChipFiled_->GetMapChipPositionByIndex(3, 18);
+	Vector3 playerPosition = mapChipFiled_->GetMapChipPositionByIndex(7, 7);
 
 	// プレイヤーの初期化
 	player_->Initialize(modelPlayer_, &viewProjection_, playerPosition); // 元player_->Initialize(modelPlayer_, &viewProjection_);
+
+	player_->SetMapChipField(mapChipFiled_);
 
 	// 天球の生成
 	skyDome_ = new Skydome();
@@ -79,7 +91,7 @@ void GameScene::Initialize() {
 	skyDome_->Initialize(modelSkydome_, &viewProjection_);
 
 	// ブロックのモデルを読み込む
-	modelBlock_ = Model::CreateFromOBJ("Block", true);
+	modelBlock_ = Model::CreateFromOBJ("block", true);
 
 	// 要素数
 	// const uint32_t kNumBlockVirtical = 10;//10
@@ -112,17 +124,31 @@ void GameScene::Initialize() {
 
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);
-	//カメラコントローラの初期化
-	
-	
-	target_ = new CameraController();
-	target_->Initialize();
-	target_->SetTarget(player_);
-	
-	target_->Reset();
-	CameraController ::Rect cameraArea = {12.0f, 100 - 12.0f, 6.0f, 6.0f};
-	target_->SetMovableArea(cameraArea);			
 
+	// カメラコントローラーの生成
+	CameraController_ = new CameraController;
+
+	// カメラ初期化
+	CameraController_->Initialize();
+
+	// 追従対象をセット
+	CameraController_->SetTarget(player_);
+
+	// リセット
+	CameraController_->Reset();
+
+	// カメラ移動の範囲指定
+	Rect cameraArea = {12.0f, 100 - 12.0f, 6.0f, 6.0f};
+	CameraController_->SetMovableArea(cameraArea);
+
+	// 敵初期化
+	enemyModel_ = Model::CreateFromOBJ("enemy", true);
+
+	Vector3 enemyPosition = mapChipFiled_->GetMapChipPositionByIndex(20, 18);
+
+	enemy_ = new Enemy();
+
+	enemy_->Initialize(enemyModel_, &viewProjection_, enemyPosition);
 }
 
 void GameScene::Update() {
@@ -132,6 +158,9 @@ void GameScene::Update() {
 
 	// 天球の更新
 	skyDome_->Update();
+
+	// 敵
+	enemy_->Update();
 
 	// ブロックの更新
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
@@ -154,14 +183,19 @@ void GameScene::Update() {
 			//// 定数バッファに転送する
 			// worldTransformBlock->TransferMatrix();
 
-			worldTransformBlock->UpdeteMatrix();
+			worldTransformBlock->UpdateMatrix();
 		}
 	}
 
 	// デバッグカメラの更新
 	debugCamera_->Update();
 
-	target_->Update();
+	// カメラコントローラー
+	CameraController_->Update();
+
+	// 全ての当たり判定を行う
+	CheckAllCollisions();
+
 #ifdef _DEBUG
 
 	if (input_->TriggerKey(DIK_SPACE)) {
@@ -177,10 +211,9 @@ void GameScene::Update() {
 		// ビュープロジェクション行列の転送
 		viewProjection_.TransferMatrix();
 	} else {
-		// ビュープロジェクション行列の更新と転送
-		viewProjection_.matView = target_->GetViewProjection().matView;
-		viewProjection_.matProjection = target_->GetViewProjection().matProjection;
-
+		viewProjection_.matView = CameraController_->GetViewProjection().matView;
+		viewProjection_.matProjection = CameraController_->GetViewProjection().matProjection;
+		// ビュープロジェクション行列の転送
 		viewProjection_.TransferMatrix();
 	}
 }
@@ -218,6 +251,9 @@ void GameScene::Draw() {
 	// 天球の描画処理
 	skyDome_->Draw();
 
+	// 敵
+	enemy_->Draw();
+
 	// ブロックの描画
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -229,8 +265,6 @@ void GameScene::Draw() {
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
-
-	
 #pragma endregion
 
 #pragma region 前景スプライト描画
@@ -274,4 +308,38 @@ void GameScene::GenerateBlocks() {
 			}
 		}
 	}
+}
+
+void GameScene::CheckAllCollisions() {
+#pragma region 自キャラと敵の当たり判定
+	{
+		// 判定対象1と2の座標
+		AABB aabb1, aabb2;
+
+		// 自キャラの座標
+		aabb1 = player_->GetAABB();
+
+		// 自キャラと敵弾全ての当たり判定
+		for (Enemy* enemy : enemies_) {
+			// 敵弾の座標
+			aabb2 = enemy->GetAABB();
+
+			// AABB同士の交差判定
+			if (IsCollision(aabb1, aabb2)) {
+				// 自キャラの衝突時コールバックを出す
+				player_->OnCollision(enemy);
+
+				// 敵弾の衝突時コールバックを出す
+				enemy->OnCollision(player_);
+			}
+		}
+	}
+
+#pragma endregion
+
+#pragma region 自キャラとアイテムの当たり判定
+#pragma endregion
+
+#pragma region 自弾と敵の当たり判定
+#pragma endregion
 }

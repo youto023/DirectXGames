@@ -4,6 +4,7 @@
 #include "CameraController.h"
 #include "DebugCamera.h"
 #include "DirectXCommon.h"
+#include "Enemy.h"
 #include "Input.h"
 #include "MapChipField.h"
 #include "Model.h"
@@ -46,6 +47,9 @@ public: // メンバ関数
 	void Draw();
 
 	void GenerateBlocks();
+
+	// 全ての当たり判定を行う
+	void CheckAllCollisions();
 
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
@@ -93,5 +97,13 @@ private: // メンバ変数
 	// カメラビュープロジェクション
 	ViewProjection* CameraViewProjection_;
 
-CameraController* target_ = nullptr;
+	// カメラコントローラー
+	CameraController* CameraController_;
+
+	// 敵
+	Enemy* enemy_ = nullptr;
+
+	Model* enemyModel_ = nullptr;
+
+	std::list<Enemy*> enemies_;
 };
