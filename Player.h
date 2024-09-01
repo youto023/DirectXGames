@@ -2,11 +2,9 @@
 #include "AABB.h"
 #include "Model.h"
 #include "WorldTransform.h"
-
+// 前方宣言
 class MapChipField;
-
 class Enemy;
-
 /// <summary>
 ///	自キャラ
 /// </summary>
@@ -20,15 +18,23 @@ public: // 引数を書くところ
 	/// <param name="textureHandle">テクスチャハンドル</param>
 	void Initialize(Model* model, ViewProjection* viewProjection, const Vector3& position); // void Initialize(Model* model, ViewProjection* viewProjection);
 
+	// 対応するGetterを作成
+	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
+
+	// 速度加算
+	const Vector3& GetVelocity() const { return velocity_; }
+
 	// 左右
 	enum class LRDirection {
 		kRight,
 		kLeft,
 	};
 
-	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
+	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
 
-	const Vector3& GetVelocity() const { return velocity_; }
+	// キャラクターの当たり判定サイズ(0.0fとかにするとキャラクターが埋まったりする)
+	static inline const float kWidth = 0.8f;
+	static inline const float kHeight = 0.8f;
 
 	/// <summary>
 	/// 更新処理
@@ -40,33 +46,36 @@ public: // 引数を書くところ
 	/// </summary>
 	void Draw();
 
-	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
-
-	// キャラクターの当たり判定サイズ
-	static inline const float kWidth = 0.8f;  // 横幅
-	static inline const float kHeight = 0.8f; // 縦幅
-
+	// 移動入力
 	void InputMove();
 
+	// 旋回制御
 	void AnimateTurn();
 
 	// マップとの当たり判定情報
 	struct CollisionMapInfo {
-		bool Ceiling = false; // 天井衝突フラグ
-		bool landing = false; // 着地フラグ
-		bool HitWall = false; // 壁接触フラグ
-		Vector3 move;         // 移動量
+		bool ceiling = false;
+		bool landing = false;
+		bool hitWall = false;
+		Vector3 move;
 	};
 
 	void CheckMapCollision(CollisionMapInfo& info);
 
 	void CheckMapCollisionUp(CollisionMapInfo& info);
 	void CheckMapCollisionDown(CollisionMapInfo& info);
-	void CheckMapCollisionRight(CollisionMapInfo& info);
 	void CheckMapCollisionLeft(CollisionMapInfo& info);
+	void CheckMapCollisionRight(CollisionMapInfo& info);
+
+	// 接地状態の切り替え
+	void cellingSwitch(const CollisionMapInfo& info);
+
+	// 衝突応答
+	void OnCollision(const Enemy* enemy);
 
 	// 角
 	enum Corner {
+
 		kRightBottom, // 右下
 		kLeftBottom,  // 左下
 		kRightTop,    // 右上
@@ -77,16 +86,9 @@ public: // 引数を書くところ
 
 	Vector3 CornerPosition(const Vector3& center, Corner corner);
 
-	static inline const float kBlank = 1.0f;
-
-	// 判定結果を反映して移動させる
 	void CheckMapCollisionHit(const CollisionMapInfo& info);
 
-	// 天井に接触している場合の処理
-	void CeilingContact(const CollisionMapInfo& info);
-
-	// 接地状態の切り替え
-	void GroundedCondition(const CollisionMapInfo& info);
+	void CellingContactHit(const CollisionMapInfo& info);
 
 	// ワールド座標を取得
 	Vector3 GetWorldPosition();
@@ -94,10 +96,13 @@ public: // 引数を書くところ
 	// AABBを取得
 	AABB GetAABB();
 
-	// 衝突応答
-	void OnCollision(const Enemy* enemy);
+	// デスフラグのgetter
+	bool IsDead() const { return isDead_; }
 
 private: // 関数（メンバ変数）
+	// マップチップによるフィールド
+	MapChipField* mapChipField_ = nullptr;
+
 	// ワールド変換データ
 	WorldTransform worldTransform_;
 
@@ -141,12 +146,15 @@ private: // 関数（メンバ変数）
 	// ジャンプ初速（上方向）
 	static inline const float kJumpAcceleration = 0.5f;
 
-	ViewProjection* viewProjection_ = nullptr;
-
-	// マップチップのフィールド
-	MapChipField* mapChipField_ = nullptr;
+	static inline const float kBlank = 5;
 
 	// 着地時の速度減衰率
-	static inline const float kAttenuationLanding = 0.5f;
-	static inline const float kAttenuationShift = 0.1f;
+	static inline const float kAttennuationLanding = 0.5f;
+
+	static inline const float kAttennuationShift = 0.1f;
+
+	// デスフラグ
+	bool isDead_ = false;
+
+	ViewProjection* viewProjection_ = nullptr;
 };
